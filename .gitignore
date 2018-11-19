@@ -56,3 +56,7 @@ dkms.conf
 
 # compiled c program
 duplicate
+
+# text files
+foobar
+bizbaz
