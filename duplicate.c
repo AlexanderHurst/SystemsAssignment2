@@ -3,11 +3,14 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/wait.h>
-#define FILEDOESNOTEXIST 10
+#define READFILEACCESSERR 10
+#define WRITEFILEACCESSERR 11
 
 void sig_usr(int signo){
-    if (signo == FILEDOESNOTEXIST)
-    printf("Error: \tCould not find source file\n\tFile or read Permissions missing");    
+    if (signo == READFILEACCESSERR)
+    printf("Error: \tCould not read source file\n\tFile or read Permissions missing");
+    if (signo == WRITEFILEACCESSERR)
+    printf("Error: \tCould not write to target file\n\tCheck File Permissions");    
     return;
     
 }
@@ -30,9 +33,10 @@ int main(int argc, char *argv[]){
     if (pid != 0) {
         int *status;
 
-        // catch the child signal if the file does not exist
-        signal(FILEDOESNOTEXIST, sig_usr);
-
+        // catch the child signals if there are complications
+        signal(READFILEACCESSERR, sig_usr);
+        signal(WRITEFILEACCESSERR, sig_usr);
+        
         // wait a second for the child
         sleep(1);
         
@@ -49,9 +53,7 @@ int main(int argc, char *argv[]){
     else {
         char *source = argv[1];
         char *target = argv[2];
-        FILE *fpr;
-        FILE *fpw;
-
+        FILE *fpr, *fpw;
         fpr = fopen(source, "r");
         fpw = fopen(target, "w");
         
@@ -59,12 +61,30 @@ int main(int argc, char *argv[]){
         usleep(1000);
 
         // signal the parent if the input file does not exist
+        // or permission is denied
         if (fpr == NULL){
-            kill(ppid, FILEDOESNOTEXIST);
+            kill(ppid, READFILEACCESSERR);
             return(1);
         }
 
-        usleep(10000000);
+        // signal the parent if write access denied
+        if (fpw == NULL){
+            kill(ppid, WRITEFILEACCESSERR);
+            return(1);
+        }
+
+        // grab each character and write it to the target file
+        char c = fgetc(fpr);
+
+        while(c != EOF){
+            fputc(c, fpw);
+            c = fgetc(fpr);
+        }
+
+        fclose(fpw);
+        fclose(fpr);
+        
+        //usleep(2000000);
 
         return(0);
     }
