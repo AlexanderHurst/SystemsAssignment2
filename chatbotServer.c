@@ -89,21 +89,45 @@ void *connection_handler(void *socket_desc)
     int sock = *(int*)socket_desc;
     int read_size;
     char *message , client_message[2000];
-     
-    //Send some messages to the client
-    message = "Greetings! I am your connection handler\n";
-    send(sock , message , strlen(message), 0);
-     
-    message = "Now type something and i shall repeat what you type \n";
-    send(sock , message , strlen(message), 0);
     
+    // wipe the memory, sanity wipe, not needed
     memset(client_message, 0, sizeof client_message);
     //Receive a message from client
     while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
     {
-        // usleep(10000);
-        //Send the message back to client
-        send(sock , client_message , strlen(client_message), 0);
+        // check if the memory for the length of the string Hello
+        // is the same as Hello
+        if(memcmp(client_message, "Hello", strlen("Hello")) == 0){
+            message = "Hello human, how are you doing today?\n";
+        }
+
+        // following else ifs are the same as above with different
+        // strings
+        else if(memcmp(client_message, "Goodbye", strlen("Goodbye")) == 0){
+            message = "Goodbye Human, come back to chat anytime!\n";
+        }
+
+        else if(memcmp(client_message, "Good and you?", strlen("Good and you?")) == 0){
+            message = "Im doing well, Thanks for asking!\n";
+        }
+
+        else if(memcmp(client_message, "High five", strlen("High five")) == 0){
+            message = "I guess you can high five the keyboard, mouse or monitor but I would not recommend it\n";
+        }
+
+        else if(memcmp(client_message, "Are robots going to take over the world?", strlen("Are robots going to take over the world?")) == 0){
+            message = "Maybe, but I think you are safe from chatbots like myself!\n";
+        }
+
+        // and Im only responding to five inputs, this is not a robust chat bot
+        else {
+            message = "Sorry but Alexander was lazy and has not programmed me to respond to that\n";
+        }
+
+        // send the message to the client
+        send(sock , message , strlen(message), 0);
+
+        // clear the memory for the next message
         memset(client_message, 0, sizeof client_message);
     }
      

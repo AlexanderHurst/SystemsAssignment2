@@ -45,6 +45,7 @@ int main(int argc , char *argv[])
         // stay in sync, wait for server to proccess
         usleep(100);
         
+        // wipe the memory for the server reply
         memset(server_reply, 0, sizeof server_reply);
         
         //Receive a reply from the server
