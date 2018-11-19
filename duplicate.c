@@ -6,6 +6,7 @@
 #define READFILEACCESSERR 10
 #define WRITEFILEACCESSERR 11
 
+// signal handling of file access errors
 void sig_usr(int signo){
     if (signo == READFILEACCESSERR)
     printf("Error: \tCould not read source file\n\tFile or read Permissions missing");
@@ -75,16 +76,17 @@ int main(int argc, char *argv[]){
 
         // grab each character and write it to the target file
         char c = fgetc(fpr);
-
         while(c != EOF){
             fputc(c, fpw);
             c = fgetc(fpr);
         }
 
+        // close the file pointers
         fclose(fpw);
         fclose(fpr);
         
-        //usleep(2000000);
+        // debug wait
+        sleep(2);
 
         return(0);
     }
